@@ -49,7 +49,7 @@ pipeline {
                 script {
                     def name = "TSDEV - Build ${env.BUILD_NUMBER}"
                     def layout = 1204
-                    def layoutcode = fe027d2f-71e4-4e54-a3d1-90cf7892a571
+                    def layoutcode = "fe027d2f-71e4-4e54-a3d1-90cf7892a571"
                     def ports = 31444
                     def canary_replicas = 1
                     
