@@ -4,6 +4,11 @@ pipeline {
         //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "gapietro/train-schedule"
     }
+    parameters {
+        string(name: 'canaryid', defaultValue: '')
+        string(name: 'oldprodid', defaultValue: '')
+        string(name: 'prodid', defaultValue: '')
+    }
     stages {
         stage('Build') {
             steps {
@@ -56,7 +61,7 @@ pipeline {
                     env.requestBody = "{\"zoneId\":1,\"instance\":{\"name\":\"${name}\",\"cloud\":\"Pietro Local VMWare\",\"site\":{\"id\":1},\"type\":\"ts\",\"instanceType\":{\"code\":\"ts\"},\"instanceContext\":\"dev\",\"layout\":{\"id\":${layout},\"code\":\"${layoutcode}\"},\"plan\":{\"id\":116,\"code\":\"container-256\",\"name\":\"256MB Memory, 3GB Storage\"}},\"config\":{\"resourcePoolId\":15,\"poolProviderType\":\"kubernetes\",\"customOptions\":{\"f_tsver\":\"${env.BUILD_NUMBER}\",\"_tsrep\":\"${canary_replicas}\"},\"createUser\":true},\"volumes\":[{\"id\":-1,\"rootVolume\":true,\"name\":\"root\",\"size\":3,\"sizeId\":null,\"storageType\":null,\"datastoreId\":12}],\"ports\":[{\"name\":\"HTTP\",\"port\":${ports},\"lb\":\"HTTP\"}]}" 
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], requestBody: "${env.requestBody}", responseHandle: 'STRING', validResponseCodes: '200')
                     def props = readJSON text: cdresponse.content.toString()
-                    def canaryid = props.instance.id
+                    env.canaryid = props.instance.id
                     
                     println("ID: "+env.canaryid)
                     println("Content: "+cdresponse.content)
@@ -75,14 +80,14 @@ pipeline {
                 milestone(1)
                 // remove Canary Deployment  
                 script {
-                    httpRequest(url: "https://192.168.10.104/api/instances/${canaryid}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
+                    httpRequest(url: "https://192.168.10.104/api/instances/${env.canaryid}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                 }
                 
                 // Find existing Deployment
                 script {
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances/?instanceType=ts', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'GET', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                     def props = readJSON text: cdresponse.content.toString()
-                    def oldprod = props.instance.id           
+                    env.oldprodid = props.instance.id           
                 }
                 
                 
@@ -98,7 +103,7 @@ pipeline {
                     env.requestBody = "{\"zoneId\":1,\"instance\":{\"name\":\"${name}\",\"cloud\":\"Pietro Local VMWare\",\"site\":{\"id\":1},\"type\":\"ts\",\"instanceType\":{\"code\":\"ts\"},\"instanceContext\":\"dev\",\"layout\":{\"id\":${layout},\"code\":\"${layoutcode}\"},\"plan\":{\"id\":116,\"code\":\"container-256\",\"name\":\"256MB Memory, 3GB Storage\"}},\"config\":{\"resourcePoolId\":15,\"poolProviderType\":\"kubernetes\",\"customOptions\":{\"f_tsver\":\"${env.BUILD_NUMBER}\",\"_tsrep\":\"${canary_replicas}\"},\"createUser\":true},\"volumes\":[{\"id\":-1,\"rootVolume\":true,\"name\":\"root\",\"size\":3,\"sizeId\":null,\"storageType\":null,\"datastoreId\":12}],\"ports\":[{\"name\":\"HTTP\",\"port\":${ports},\"lb\":\"HTTP\"}]}" 
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], requestBody: "${env.requestBody}", responseHandle: 'STRING', validResponseCodes: '200')
                     def props = readJSON text: cdresponse.content.toString()
-                    def prodid = props.instance.id
+                    env.prodid = props.instance.id
                     
                     println("ID: "+env.prodid)
                     println("Content: "+cdresponse.content)
@@ -106,7 +111,7 @@ pipeline {
                 
                 // remove old production
                 script {
-                    httpRequest(url: "https://192.168.10.104/api/instances/${oldprod}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
+                    httpRequest(url: "https://192.168.10.104/api/instances/${env.oldprodid}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                 }
             }
         }
