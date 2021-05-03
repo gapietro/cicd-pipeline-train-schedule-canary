@@ -81,6 +81,7 @@ pipeline {
                 // remove Canary Deployment  
                 script {
                     httpRequest(url: "https://192.168.10.104/api/instances/${env.canaryid}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
+                    sleep(10)
                 }
                 
                 // Find existing Deployment
