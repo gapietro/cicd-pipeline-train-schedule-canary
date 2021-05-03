@@ -51,7 +51,7 @@ pipeline {
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], requestBody: "${env.requestBody}", responseHandle: 'STRING', validResponseCodes: '200')
                     
                     // println("ID: "+cdresponse.instance.id)
-                    println("Content: "+cdresponse.content)
+                    println("Content: "+cdresponse.content.instance.id)
                 }
             }
         }
