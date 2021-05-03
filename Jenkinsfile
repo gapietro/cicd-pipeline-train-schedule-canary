@@ -112,7 +112,7 @@ pipeline {
                 
                 // remove old production
                 script {
-                    env.oldprodid.each { id =>    
+                    env.oldprodid.each { id ->    
                        // httpRequest(url: "https://192.168.10.104/api/instances/${id}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                        println("RM ID: "+id)
                     } 
