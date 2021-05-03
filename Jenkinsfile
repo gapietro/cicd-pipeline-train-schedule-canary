@@ -1,9 +1,9 @@
+def oldprodid = []
 pipeline {
     agent any
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "gapietro/train-schedule"
-        oldprodid = []
     }
     parameters {
         string(name: 'canaryid', defaultValue: '')
@@ -88,8 +88,8 @@ pipeline {
                 script {
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances/?instanceType=ts', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'GET', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                     def props = readJSON text: cdresponse.content.toString()
-                    env.oldprodid = props.instances.id  
-                    env.oldprodid.each { printLn it }
+                    oldprodid = props.instances.id  
+                    oldprodid.each { printLn it }
                 }
                 
                 
@@ -113,7 +113,7 @@ pipeline {
                 
                 // remove old production
                 script {
-                    env.oldprodid.each { id ->    
+                    oldprodid.each { id ->    
                        // httpRequest(url: "https://192.168.10.104/api/instances/${id}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                        println("RM ID: "+id)
                     } 
