@@ -81,7 +81,7 @@ pipeline {
                 // remove Canary Deployment  
                 script {
                     httpRequest(url: "https://192.168.10.104/api/instances/${env.canaryid}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
-                    sleep(10)
+                    sleep(5)
                 }
                 
                 // Find existing Deployment
@@ -89,7 +89,6 @@ pipeline {
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances/?instanceType=ts', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'GET', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
                     def props = readJSON text: cdresponse.content.toString()
                     oldprodid = props.instances.id  
-                    oldprodid.each { printLn it }
                 }
                 
                 
