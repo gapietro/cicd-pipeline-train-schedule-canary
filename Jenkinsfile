@@ -74,8 +74,10 @@ pipeline {
                 input 'Deploy to Production?'
                 milestone(1)
                 // remove Canary Deployment  
-                httpRequest(url: 'https://192.168.10.104/api/instances/${env.canaryid}?removeVolumes=on', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
-                 
+                script {
+                    httpRequest(url: 'https://192.168.10.104/api/instances/${env.canaryid}?removeVolumes=on', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
+                }
+                
                 // Find existing Deployment
                 script {
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances/?instanceType=ts', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'GET', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
@@ -103,8 +105,9 @@ pipeline {
                 }  
                 
                 // remove old production
-                httpRequest(url: 'https://192.168.10.104/api/instances/${env.oldprod}?removeVolumes=on', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
-                
+                script {
+                    httpRequest(url: 'https://192.168.10.104/api/instances/${env.oldprod}?removeVolumes=on', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
+                }
             }
         }
     }
