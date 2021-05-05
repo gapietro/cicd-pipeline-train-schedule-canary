@@ -99,7 +99,7 @@ pipeline {
                     def layout = 1202
                     def layoutcode = "9a3260e9-ad22-4a40-99c2-3acca466d5dc"
                     def ports = 31443
-                    def canary_replicas = 0
+                    def canary_replicas = 2
                     
                     env.requestBody = "{\"zoneId\":1,\"instance\":{\"name\":\"${name}\",\"cloud\":\"Pietro Local VMWare\",\"site\":{\"id\":1},\"type\":\"ts\",\"instanceType\":{\"code\":\"ts\"},\"instanceContext\":\"dev\",\"layout\":{\"id\":${layout},\"code\":\"${layoutcode}\"},\"plan\":{\"id\":116,\"code\":\"container-256\",\"name\":\"256MB Memory, 3GB Storage\"}},\"config\":{\"resourcePoolId\":15,\"poolProviderType\":\"kubernetes\",\"customOptions\":{\"f_tsver\":\"${env.BUILD_NUMBER}\",\"_tsrep\":\"${canary_replicas}\"},\"createUser\":true},\"volumes\":[{\"id\":-1,\"rootVolume\":true,\"name\":\"root\",\"size\":3,\"sizeId\":null,\"storageType\":null,\"datastoreId\":12}],\"ports\":[{\"name\":\"HTTP\",\"port\":${ports},\"lb\":\"HTTP\"}]}" 
                     def cdresponse = httpRequest(url: 'https://192.168.10.104/api/instances', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'POST', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], requestBody: "${env.requestBody}", responseHandle: 'STRING', validResponseCodes: '200')
@@ -111,6 +111,7 @@ pipeline {
                 }  
                 
                 // remove old production
+                sleep(25)
                 script {
                     oldprodid.each { id ->    
                        httpRequest(url: "https://192.168.10.104/api/instances/${id}?removeVolumes=on", acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', httpMode: 'DELETE', ignoreSslErrors: true, customHeaders: [[name: 'Authorization', value: 'Bearer e125ccff-6c05-4664-a21a-500f98e693cc']], responseHandle: 'STRING', validResponseCodes: '200')
